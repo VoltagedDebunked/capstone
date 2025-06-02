@@ -190,6 +190,16 @@ ifneq (,$(findstring sparc,$(CAPSTONE_ARCHS)))
 endif
 
 
+DEP_AVR =
+DEP_AVR += $(wildcard arch/AVR/AVR*.inc)
+
+LIBOBJ_AVR =
+ifneq (,$(findstring avr,$(CAPSTONE_ARCHS)))
+	CFLAGS += -DCAPSTONE_HAS_AVR
+	LIBSRC_SPARC += $(wildcard arch/AVR/AVR*.c)
+	LIBOBJ_SPARC += $(LIBSRC_AVR:%.c=$(OBJDIR)/%.o)
+endif
+
 DEP_SYSZ =
 DEP_SYSZ += $(wildcard arch/SystemZ/SystemZ*.inc)
 

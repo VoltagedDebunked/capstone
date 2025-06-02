@@ -105,8 +105,8 @@ if(APPLE AND NOT CAPSTONE_BUILD_MACOS_THIN)
     set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
 endif()
 
-set(SUPPORTED_ARCHITECTURES ARM AARCH64 M68K MIPS PPC SPARC SYSTEMZ XCORE X86 TMS320C64X M680X EVM MOS65XX WASM BPF RISCV SH TRICORE ALPHA HPPA LOONGARCH XTENSA ARC)
-set(SUPPORTED_ARCHITECTURE_LABELS ARM AARCH64 M68K MIPS PowerPC Sparc SystemZ XCore x86 TMS320C64x M680x EVM MOS65XX WASM BPF RISCV SH TriCore Alpha HPPA LoongArch Xtensa ARC)
+set(SUPPORTED_ARCHITECTURES ARM AARCH64 M68K MIPS PPC SPARC SYSTEMZ XCORE X86 TMS320C64X M680X EVM MOS65XX WASM BPF RISCV SH TRICORE ALPHA HPPA LOONGARCH XTENSA ARC AVR)
+set(SUPPORTED_ARCHITECTURE_LABELS ARM AARCH64 M68K MIPS PowerPC Sparc SystemZ XCore x86 TMS320C64x M680x EVM MOS65XX WASM BPF RISCV SH TriCore Alpha HPPA LoongArch Xtensa ARC AVR)
 
 # If building for OSX it's best to allow CMake to handle building both architectures
 if(APPLE AND NOT CAPSTONE_BUILD_MACOS_THIN)
@@ -233,6 +233,7 @@ set(HEADERS_COMMON
     include/capstone/loongarch.h
     include/capstone/xtensa.h
     include/capstone/arc.h
+    include/capstone/avr.h
 )
 
 ## architecture support
@@ -732,6 +733,23 @@ if (CAPSTONE_ARC_SUPPORT)
             )
 endif ()
 
+if (CAPSTONE_AVR_SUPPORT)
+   add_definitions(-DCAPSTONE_HAS_AVR)
+   set(SOURCES_AVR
+       arch/AVR/AVRDisassembler.c
+       arch/AVR/AVRInstPrinter.c
+       arch/AVR/AVRDecoder.c
+       arch/AVR/AVRMapping.c
+       arch/AVR/AVRModule.c
+   )
+   set(HEADERS_AVR
+       arch/AVR/AVRDisassembler.h
+       arch/AVR/AVRInstPrinter.h
+       arch/AVR/AVRMapping.h
+       arch/AVR/AVRModule.h
+   )
+endif ()
+
 if (CAPSTONE_OSXKERNEL_SUPPORT)
     add_definitions(-DCAPSTONE_HAS_OSXKERNEL)
 endif()
@@ -761,6 +779,7 @@ set(ALL_SOURCES
     ${SOURCES_LOONGARCH}
     ${SOURCES_XTENSA}
     ${SOURCES_ARC}
+    ${SOURCES_AVR}
 )
 
 set(ALL_HEADERS
@@ -789,6 +808,7 @@ set(ALL_HEADERS
     ${HEADERS_LOONGARCH}
     ${HEADERS_XTENSA}
     ${HEADERS_ARC}
+    ${HEADERS_AVR}
 )
 
 ## properties
@@ -864,6 +884,7 @@ source_group("Source\\HPPA" FILES ${SOURCES_HPPA})
 source_group("Source\\LoongArch" FILES ${SOURCES_LOONGARCH})
 source_group("Source\\Xtensa" FILES ${SOURCES_XTENSA})
 source_group("Source\\ARC" FILES ${SOURCES_ARC})
+source_group("Source\\AVR" FILES ${SOURCES_AVR})
 
 source_group("Include\\Common" FILES ${HEADERS_COMMON})
 source_group("Include\\Engine" FILES ${HEADERS_ENGINE})
@@ -890,6 +911,7 @@ source_group("Include\\HPPA" FILES ${HEADERS_HPPA})
 source_group("Include\\LoongArch" FILES ${HEADERS_LOONGARCH})
 source_group("Include\\Xtensa" FILES ${HEADERS_XTENSA})
 source_group("Include\\ARC" FILES ${HEADERS_ARC})
+source_group("Include\\AVR" FILES ${HEADERS_AVR})
 
 ## installation
 if(CAPSTONE_INSTALL)

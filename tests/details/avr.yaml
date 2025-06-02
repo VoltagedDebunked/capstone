@@ -1,0 +1,532 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x05, 0xE5, 0x01, 0x0F, 0x20, 0x2F, 0x08, 0xBB, 0x00, 0x00, 0x0F, 0x92, 0x1F, 0x90, 0x0E, 0x94, 0x00, 0x01, 0x08, 0x95, 0x31, 0xF0, 0xF8, 0x94, 0x78, 0x94 ]
+      arch: "avr"
+      options: [ CS_OPT_DETAIL, CS_MODE_LITTLE_ENDIAN ]
+      address: 0x0
+    expected:
+      insns:
+      -
+        asm_text: "ldi r16, $0x55"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r16"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_IMM
+                imm: 0x55
+                access: CS_AC_READ
+          groups: [ data_transfer ]
+      -
+        asm_text: "add r16, r17"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r16"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r17"
+                access: CS_AC_READ
+          regs_read: [ "r16", "r17" ]
+          regs_write: [ "r16", "SREG" ]
+          groups: [ arithmetic ]
+      -
+        asm_text: "mov r18, r16"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r18"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r16"
+                access: CS_AC_READ
+          regs_read: [ "r16" ]
+          regs_write: [ "r18" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "out $0x18, r16"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 0x18
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r16"
+                access: CS_AC_READ
+          regs_read: [ "r16" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "nop"
+        details:
+          avr:
+            operands: []
+          groups: [ mcu_control ]
+      -
+        asm_text: "push r16"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r16"
+                access: CS_AC_READ
+          regs_read: [ "r16", "SP" ]
+          regs_write: [ "SP" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "pop r17"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r17"
+                access: CS_AC_WRITE
+          regs_read: [ "SP" ]
+          regs_write: [ "r17", "SP" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "call $0x100"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 0x100
+                access: CS_AC_READ
+          regs_read: [ "SP" ]
+          regs_write: [ "SP", "PC" ]
+          groups: [ call ]
+      -
+        asm_text: "ret"
+        details:
+          avr:
+            operands: []
+          regs_read: [ "SP" ]
+          regs_write: [ "SP", "PC" ]
+          groups: [ ret ]
+      -
+        asm_text: "breq .+6"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 3
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "cli"
+        details:
+          avr:
+            operands: []
+          regs_write: [ "SREG" ]
+          groups: [ int ]
+      -
+        asm_text: "sei"
+        details:
+          avr:
+            operands: []
+          regs_write: [ "SREG" ]
+          groups: [ int ]
+
+  # Additional test case for arithmetic operations
+  -
+    input:
+      bytes: [ 0x81, 0x1C, 0x80, 0x18, 0x81, 0x20, 0x80, 0x60, 0x80, 0x24, 0x04, 0x94, 0x05, 0x94 ]
+      arch: "avr"
+      options: [ CS_OPT_DETAIL, CS_MODE_LITTLE_ENDIAN ]
+      address: 0x100
+    expected:
+      insns:
+      -
+        asm_text: "adc r24, r1"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r24"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r1"
+                access: CS_AC_READ
+          regs_read: [ "r24", "r1" ]
+          regs_write: [ "r24", "SREG" ]
+          groups: [ arithmetic ]
+      -
+        asm_text: "sub r24, r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r24"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+          regs_read: [ "r24", "r0" ]
+          regs_write: [ "r24", "SREG" ]
+          groups: [ arithmetic ]
+      -
+        asm_text: "and r24, r1"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r24"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r1"
+                access: CS_AC_READ
+          regs_read: [ "r24", "r1" ]
+          regs_write: [ "r24", "SREG" ]
+          groups: [ logic ]
+      -
+        asm_text: "ori r24, $0x60"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r24"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_IMM
+                imm: 0x60
+                access: CS_AC_READ
+          regs_read: [ "r24" ]
+          regs_write: [ "r24", "SREG" ]
+          groups: [ logic ]
+      -
+        asm_text: "eor r24, r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r24"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+          regs_read: [ "r24", "r0" ]
+          regs_write: [ "r24", "SREG" ]
+          groups: [ logic ]
+      -
+        asm_text: "com r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ | CS_AC_WRITE
+          regs_read: [ "r0" ]
+          regs_write: [ "r0", "SREG" ]
+          groups: [ logic ]
+      -
+        asm_text: "asr r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ | CS_AC_WRITE
+          regs_read: [ "r0" ]
+          regs_write: [ "r0", "SREG" ]
+          groups: [ logic ]
+
+  # Test case for load/store operations
+  -
+    input:
+      bytes: [ 0x0C, 0x90, 0x0D, 0x90, 0x0E, 0x90, 0x08, 0x80, 0x0C, 0x92, 0x0D, 0x92, 0x08, 0x82 ]
+      arch: "avr"
+      options: [ CS_OPT_DETAIL, CS_MODE_LITTLE_ENDIAN ]
+      address: 0x200
+    expected:
+      insns:
+      -
+        asm_text: "ld r0, X"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "X"
+                access: CS_AC_READ
+          regs_read: [ "X" ]
+          regs_write: [ "r0" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "ld r0, X+"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "X"
+                access: CS_AC_READ | CS_AC_WRITE
+          regs_read: [ "X" ]
+          regs_write: [ "r0", "X" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "ld r0, -X"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "X"
+                access: CS_AC_READ | CS_AC_WRITE
+          regs_read: [ "X" ]
+          regs_write: [ "r0", "X" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "ld r0, Y"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "Y"
+                access: CS_AC_READ
+          regs_read: [ "Y" ]
+          regs_write: [ "r0" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "st X, r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "X"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+          regs_read: [ "X", "r0" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "st X+, r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "X"
+                access: CS_AC_READ | CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+          regs_read: [ "X", "r0" ]
+          regs_write: [ "X" ]
+          groups: [ data_transfer ]
+      -
+        asm_text: "st Y, r0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "Y"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+          regs_read: [ "Y", "r0" ]
+          groups: [ data_transfer ]
+
+  # Test case for branch instructions
+  -
+    input:
+      bytes: [ 0x01, 0xF4, 0x09, 0xF0, 0x08, 0xF0, 0x0A, 0xF4, 0x02, 0xF4, 0x0B, 0xF0 ]
+      arch: "avr"
+      options: [ CS_OPT_DETAIL, CS_MODE_LITTLE_ENDIAN ]
+      address: 0x300
+    expected:
+      insns:
+      -
+        asm_text: "brne .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "breq .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "brcs .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "brcc .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "brsh .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+      -
+        asm_text: "brlo .+2"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 1
+                access: CS_AC_READ
+          groups: [ branch_relative ]
+
+  # Test case for bit operations
+  -
+    input:
+      bytes: [ 0x00, 0xFA, 0x07, 0xF8, 0x00, 0x9A, 0x07, 0x98, 0x08, 0x94, 0x88, 0x94 ]
+      arch: "avr"
+      options: [ CS_OPT_DETAIL, CS_MODE_LITTLE_ENDIAN ]
+      address: 0x400
+    expected:
+      insns:
+      -
+        asm_text: "bst r0, 0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_READ
+              -
+                type: AVR_OP_IMM
+                imm: 0
+                access: CS_AC_READ
+          regs_read: [ "r0" ]
+          regs_write: [ "SREG" ]
+          groups: [ bit_test ]
+      -
+        asm_text: "bld r0, 7"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_REG
+                reg: "r0"
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_IMM
+                imm: 7
+                access: CS_AC_READ
+          regs_read: [ "SREG" ]
+          regs_write: [ "r0" ]
+          groups: [ bit_test ]
+      -
+        asm_text: "sbi $0x0, 0"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 0x0
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_IMM
+                imm: 0
+                access: CS_AC_READ
+          groups: [ bit_test ]
+      -
+        asm_text: "cbi $0x0, 7"
+        details:
+          avr:
+            operands:
+              -
+                type: AVR_OP_IMM
+                imm: 0x0
+                access: CS_AC_WRITE
+              -
+                type: AVR_OP_IMM
+                imm: 7
+                access: CS_AC_READ
+          groups: [ bit_test ]
+      -
+        asm_text: "sec"
+        details:
+          avr:
+            operands: []
+          regs_write: [ "SREG" ]
+          groups: [ bit_test ]
+      -
+        asm_text: "clc"
+        details:
+          avr:
+            operands: []
+          regs_write: [ "SREG" ]
+          groups: [ bit_test ]

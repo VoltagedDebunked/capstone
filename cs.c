@@ -73,6 +73,7 @@
 #include "arch/LoongArch/LoongArchModule.h"
 #include "arch/Xtensa/XtensaModule.h"
 #include "arch/ARC/ARCModule.h"
+#include "arch/AVR/AVRModule.h"
 
 typedef struct cs_arch_config {
 	// constructor initialization
@@ -274,6 +275,13 @@ typedef struct cs_arch_config {
 		~(CS_MODE_LITTLE_ENDIAN), \
 	}
 
+#define CS_ARCH_CONFIG_AVR \
+	{ \
+		AVR_global_init, \
+		AVR_option, \
+		~(CS_MODE_LITTLE_ENDIAN), \
+	}
+
 #ifdef CAPSTONE_USE_ARCH_REGISTRATION
 static cs_arch_config arch_configs[MAX_ARCH];
 static uint32_t all_arch;
@@ -399,6 +407,11 @@ static const cs_arch_config arch_configs[MAX_ARCH] = {
 #else
 	{ NULL, NULL, 0 },
 #endif
+#ifdef CAPSTONE_HAS_AVR
+	CS_ARCH_CONFIG_AVR,
+#else
+	{ NULL, NULL, 0 },
+#endif
 };
 
 // bitmask of enabled architectures
@@ -471,6 +484,9 @@ static const uint32_t all_arch = 0
 #endif
 #ifdef CAPSTONE_HAS_ARC
 				 | (1 << CS_ARCH_ARC)
+#endif
+#ifdef CAPSTONE_HAS_AVR
+				 | (1 << CS_ARCH_AVR)
 #endif
 ;
 #endif
@@ -707,6 +723,14 @@ void CAPSTONE_API cs_arch_register_arc(void)
 #endif
 }
 
+CAPSTONE_EXPORT
+void CAPSTONE_API cs_arch_register_avr(void)
+{
+#if defined(CAPSTONE_USE_ARCH_REGISTRATION) && defined(CAPSTONE_HAS_AVR)
+	CS_ARCH_REGISTER(AVR);
+#endif
+}
+
 
 CAPSTONE_EXPORT
 bool CAPSTONE_API cs_support(int query)
@@ -724,7 +748,7 @@ bool CAPSTONE_API cs_support(int query)
 			(1 << CS_ARCH_SH) | (1 << CS_ARCH_TRICORE) |
 			(1 << CS_ARCH_ALPHA) | (1 << CS_ARCH_HPPA) |
 			(1 << CS_ARCH_LOONGARCH) | (1 << CS_ARCH_XTENSA) | 
-			(1 << CS_ARCH_ARC));
+			(1 << CS_ARCH_ARC) | (1 << CS_ARCH_AVR));
 
 	if ((unsigned int)query < CS_ARCH_MAX)
 		return all_arch & (1 << query);
@@ -1039,6 +1063,10 @@ static uint8_t skipdata_size(cs_struct *handle)
 		case CS_ARCH_ARC:
 			// ARC instruction's length can be 2, 4, 6 or 8 bytes,
 			// therefore, skip 2 bytes
+			return 2;
+		case CS_ARCH_AVR:
+			// AVR instructions are always 16-bit (2 bytes) or 32-bit (4 bytes)
+			// Skip 2 bytes for alignment
 			return 2;
 	}
 }
@@ -1799,6 +1827,11 @@ int CAPSTONE_API cs_op_count(csh ud, const cs_insn *insn, unsigned int op_type)
 				if (insn->detail->arc.operands[i].type == (arc_op_type)op_type)
 					count++;
 			break;
+		case CS_ARCH_AVR:
+			for (i = 0; i < insn->detail->avr.op_count; i++)
+				if (insn->detail->avr.operands[i].type == (avr_op_type)op_type)
+					count++;
+			break;
 	}
 
 	return count;
@@ -2009,6 +2042,14 @@ int CAPSTONE_API cs_op_index(csh ud, const cs_insn *insn, unsigned int op_type,
 		case CS_ARCH_ARC:
 			for (i = 0; i < insn->detail->arc.op_count; i++) {
 				if (insn->detail->arc.operands[i].type == (arc_op_type)op_type)
+					count++;
+				if (count == post)
+					return i;
+			}
+			break;
+		case CS_ARCH_AVR:
+			for (i = 0; i < insn->detail->avr.op_count; i++) {
+				if (insn->detail->avr.operands[i].type == (avr_op_type)op_type)
 					count++;
 				if (count == post)
 					return i;
