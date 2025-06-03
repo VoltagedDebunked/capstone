@@ -69,6 +69,9 @@ case $1 in
   ARC)
     ARCH=ARC
     ;;
+  AVR)
+    ARCH=AVR
+    ;;
   *)
     ;;
 esac
