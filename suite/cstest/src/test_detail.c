@@ -68,6 +68,9 @@ TestDetail *test_detail_clone(TestDetail *detail)
 	if (detail->arm) {
 		clone->arm = test_detail_arm_clone(detail->arm);
 	}
+	if (detail->avr) {
+		clone->avr = test_detail_avr_clone(detail->avr);
+	}
 	if (detail->ppc) {
 		clone->ppc = test_detail_ppc_clone(detail->ppc);
 	}
@@ -173,6 +176,9 @@ void test_detail_free(TestDetail *detail)
 	}
 	if (detail->arm) {
 		test_detail_arm_free(detail->arm);
+	}
+	if (detail->avr) {
+		test_detail_avr_free(detail->avr);
 	}
 	if (detail->ppc) {
 		test_detail_ppc_free(detail->ppc);
@@ -344,6 +350,9 @@ bool test_expected_detail(csh *handle, const cs_insn *insn,
 	}
 	if (expected->arm) {
 		return test_expected_arm(handle, &actual->arm, expected->arm);
+	}
+	if (expected->avr) {
+		return test_expected_avr(handle, &actual->avr, expected->avr);
 	}
 	if (expected->ppc) {
 		return test_expected_ppc(handle, &actual->ppc, expected->ppc);

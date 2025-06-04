@@ -11,6 +11,7 @@
 
 #include "test_detail_aarch64.h"
 #include "test_detail_arm.h"
+#include "test_detail_avr.h"
 #include "test_detail_evm.h"
 #include "test_detail_loongarch.h"
 #include "test_detail_mos65xx.h"
@@ -42,6 +43,7 @@
 typedef struct {
 	TestDetailAArch64 *aarch64;
 	TestDetailARM *arm;
+	TestDetailAVR *avr;
 	TestDetailPPC *ppc;
 	TestDetailTriCore *tricore;
 	TestDetailAlpha *alpha;
@@ -93,6 +95,9 @@ static const cyaml_schema_field_t test_detail_mapping_schema[] = {
 	CYAML_FIELD_MAPPING_PTR("arm", CYAML_FLAG_POINTER | CYAML_FLAG_OPTIONAL,
 				TestDetail, arm,
 				test_detail_arm_mapping_schema),
+	CYAML_FIELD_MAPPING_PTR("avr", CYAML_FLAG_POINTER | CYAML_FLAG_OPTIONAL,
+				TestDetail, avr,
+				test_detail_avr_mapping_schema),
 	CYAML_FIELD_MAPPING_PTR("ppc", CYAML_FLAG_POINTER | CYAML_FLAG_OPTIONAL,
 				TestDetail, ppc,
 				test_detail_ppc_mapping_schema),
