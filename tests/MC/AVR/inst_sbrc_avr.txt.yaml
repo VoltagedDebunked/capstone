@@ -1,0 +1,20 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x23, 0xfc ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbrc r2, 3"
+
+  -
+    input:
+      bytes: [ 0x07, 0xfc ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbrc r0, 7"

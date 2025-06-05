@@ -1,0 +1,60 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xa3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r26"
+
+  -
+    input:
+      bytes: [ 0xb3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r27"
+
+  -
+    input:
+      bytes: [ 0xc3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r28"
+
+  -
+    input:
+      bytes: [ 0xd3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r29"
+
+  -
+    input:
+      bytes: [ 0xe3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r30"
+
+  -
+    input:
+      bytes: [ 0xf3, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "inc r31"

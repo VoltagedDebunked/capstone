@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xf2, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "swap r31"
+
+  -
+    input:
+      bytes: [ 0x92, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "swap r25"
+
+  -
+    input:
+      bytes: [ 0x52, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "swap r5"
+
+  -
+    input:
+      bytes: [ 0x02, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "swap r0"

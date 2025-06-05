@@ -1,0 +1,160 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x08, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sec"
+
+  -
+    input:
+      bytes: [ 0x18, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sez"
+
+  -
+    input:
+      bytes: [ 0x28, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sen"
+
+  -
+    input:
+      bytes: [ 0x38, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sev"
+
+  -
+    input:
+      bytes: [ 0x48, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ses"
+
+  -
+    input:
+      bytes: [ 0x58, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "seh"
+
+  -
+    input:
+      bytes: [ 0x68, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "set"
+
+  -
+    input:
+      bytes: [ 0x78, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sei"
+
+  -
+    input:
+      bytes: [ 0x88, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clc"
+
+  -
+    input:
+      bytes: [ 0x98, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clz"
+
+  -
+    input:
+      bytes: [ 0xa8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cln"
+
+  -
+    input:
+      bytes: [ 0xb8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clv"
+
+  -
+    input:
+      bytes: [ 0xc8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cls"
+
+  -
+    input:
+      bytes: [ 0xd8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clh"
+
+  -
+    input:
+      bytes: [ 0xe8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clt"
+
+  -
+    input:
+      bytes: [ 0xf8, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cli"

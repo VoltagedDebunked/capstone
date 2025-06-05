@@ -1,0 +1,50 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x03, 0xa8 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "sts 3, r16"
+
+  -
+    input:
+      bytes: [ 0x1f, 0xaf ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "sts 127, r17"
+
+  -
+    input:
+      bytes: [ 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "sts SYMBOL+1, r25"
+
+  -
+    input:
+      bytes: [ 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "sts x, r25"
+
+  -
+    input:
+      bytes: [ 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "sts r25+1, r25"

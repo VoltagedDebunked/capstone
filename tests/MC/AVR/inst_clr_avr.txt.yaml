@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x22, 0x24 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clr r2"
+
+  -
+    input:
+      bytes: [ 0xcc, 0x24 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clr r12"
+
+  -
+    input:
+      bytes: [ 0x55, 0x24 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clr r5"
+
+  -
+    input:
+      bytes: [ 0x00, 0x24 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "clr r0"

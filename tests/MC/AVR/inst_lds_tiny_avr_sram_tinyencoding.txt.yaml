@@ -1,0 +1,70 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x01, 0xa7 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r16, 113"
+
+  -
+    input:
+      bytes: [ 0xde, 0xa3 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r29, 62"
+
+  -
+    input:
+      bytes: [ 0x6c, 0xa2 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r22, 44"
+
+  -
+    input:
+      bytes: [ 0xbc, 0xa5 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r27, 92"
+
+  -
+    input:
+      bytes: [ 0x40 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r20, SYMBOL+12"
+
+  -
+    input:
+      bytes: [ 0x40 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r20, r21"
+
+  -
+    input:
+      bytes: [ 0x40 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram", "tinyencoding" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r20, z+6"

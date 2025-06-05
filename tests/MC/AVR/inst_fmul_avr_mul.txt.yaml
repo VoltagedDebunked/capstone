@@ -1,0 +1,60 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x68, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r22, r16"
+
+  -
+    input:
+      bytes: [ 0x39, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r19, r17"
+
+  -
+    input:
+      bytes: [ 0x5f, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r21, r23"
+
+  -
+    input:
+      bytes: [ 0x7f, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r23, r23"
+
+  -
+    input:
+      bytes: [ 0x08, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r16, r16"
+
+  -
+    input:
+      bytes: [ 0x0f, 0x03 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "mul" ]
+    expected:
+      insns:
+        -
+          asm_text: "fmul r16, r23"

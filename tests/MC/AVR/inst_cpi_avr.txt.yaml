@@ -1,0 +1,50 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x01, 0x3f ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpi r16, 241"
+
+  -
+    input:
+      bytes: [ 0xde, 0x3b ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpi r29, 190"
+
+  -
+    input:
+      bytes: [ 0x6c, 0x3a ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpi r22, 172"
+
+  -
+    input:
+      bytes: [ 0xbc, 0x35 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpi r27, 92"
+
+  -
+    input:
+      bytes: [ 0x50 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpi r21, ear"

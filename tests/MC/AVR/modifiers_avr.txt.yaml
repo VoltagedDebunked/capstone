@@ -1,0 +1,440 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x82, 0xe4 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(66)"
+
+  -
+    input:
+      bytes: [ 0x82, 0xe4 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(9026)"
+
+  -
+    input:
+      bytes: [ 0x83, 0xe2 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(35)"
+
+  -
+    input:
+      bytes: [ 0x83, 0xe2 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(9026)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(bar)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(bar)"
+
+  -
+    input:
+      bytes: [ 0x85, 0xe1 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x80, 0xec ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(-(123456))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, lo8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x88, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x8d, 0xe1 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(-(123456))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hi8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x80, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hh8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hh8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hh8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x8e, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hh8(-(123456))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hh8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x80, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hhi8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hhi8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hhi8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x8f, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hhi8(-(123456))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, hhi8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x8a, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x84, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x80, 0xe0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(2069)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(foo)"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(bar+5)"
+
+  -
+    input:
+      bytes: [ 0x85, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(-(2069))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_lo8(-(bar+5))"
+
+  -
+    input:
+      bytes: [ 0x8b, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(-(2069))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hi8(-(bar+5))"
+
+  -
+    input:
+      bytes: [ 0x8f, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(-(2069))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(-(foo))"
+
+  -
+    input:
+      bytes: [ 0x80 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r24, pm_hh8(-(bar+5))"

@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xff, 0x91 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "pop r31"
+
+  -
+    input:
+      bytes: [ 0x9f, 0x91 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "pop r25"
+
+  -
+    input:
+      bytes: [ 0x5f, 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "pop r5"
+
+  -
+    input:
+      bytes: [ 0x0f, 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "pop r0"

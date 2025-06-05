@@ -1,0 +1,80 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x24, 0xb0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r2, 4"
+
+  -
+    input:
+      bytes: [ 0x96, 0xb0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r9, 6"
+
+  -
+    input:
+      bytes: [ 0x50, 0xb4 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r5, 32"
+
+  -
+    input:
+      bytes: [ 0x00, 0xb0 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r0, 0"
+
+  -
+    input:
+      bytes: [ 0xf0, 0xb1 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r31, 0"
+
+  -
+    input:
+      bytes: [ 0x0f, 0xb6 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r0, 63"
+
+  -
+    input:
+      bytes: [ 0xff, 0xb7 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r31, 63"
+
+  -
+    input:
+      bytes: [ 0x40 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "in r20, foo+1"

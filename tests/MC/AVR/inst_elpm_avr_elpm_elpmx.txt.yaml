@@ -1,0 +1,50 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xd8, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "elpm", "elpmx" ]
+    expected:
+      insns:
+        -
+          asm_text: "elpm"
+
+  -
+    input:
+      bytes: [ 0x36, 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "elpm", "elpmx" ]
+    expected:
+      insns:
+        -
+          asm_text: "elpm r3, Z"
+
+  -
+    input:
+      bytes: [ 0x76, 0x91 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "elpm", "elpmx" ]
+    expected:
+      insns:
+        -
+          asm_text: "elpm r23, Z"
+
+  -
+    input:
+      bytes: [ 0x87, 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "elpm", "elpmx" ]
+    expected:
+      insns:
+        -
+          asm_text: "elpm r8, Z+"
+
+  -
+    input:
+      bytes: [ 0x07, 0x90 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "elpm", "elpmx" ]
+    expected:
+      insns:
+        -
+          asm_text: "elpm r0, Z+"

@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x35, 0xf8 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "bld r3, 5"
+
+  -
+    input:
+      bytes: [ 0x11, 0xf8 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "bld r1, 1"
+
+  -
+    input:
+      bytes: [ 0x00, 0xf8 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "bld r0, 0"
+
+  -
+    input:
+      bytes: [ 0x72, 0xf8 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "bld r7, 2"

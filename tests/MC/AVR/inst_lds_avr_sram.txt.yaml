@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x00, 0x91, 0xf1, 0x00 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r16, 241"
+
+  -
+    input:
+      bytes: [ 0xd0, 0x91, 0xbe, 0x00 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r29, 190"
+
+  -
+    input:
+      bytes: [ 0x60, 0x91, 0xac, 0x00 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r22, 172"
+
+  -
+    input:
+      bytes: [ 0xb0, 0x91, 0x5c, 0x00 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "sram" ]
+    expected:
+      insns:
+        -
+          asm_text: "lds r27, 92"
