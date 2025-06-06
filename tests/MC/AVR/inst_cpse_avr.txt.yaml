@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x2d, 0x10 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpse r2, r13"
+
+  -
+    input:
+      bytes: [ 0x90, 0x10 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpse r9, r0"
+
+  -
+    input:
+      bytes: [ 0x5f, 0x12 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpse r5, r31"
+
+  -
+    input:
+      bytes: [ 0x33, 0x10 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "cpse r3, r3"

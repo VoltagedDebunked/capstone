@@ -1,0 +1,50 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x0e, 0x94, 0x00, 0x08 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "jmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "call 4096"
+
+  -
+    input:
+      bytes: [ 0xff, 0x95, 0xc2, 0xff ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "jmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "call -124"
+
+  -
+    input:
+      bytes: [ 0xff, 0x95, 0xfa, 0xff ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "jmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "call -12"
+
+  -
+    input:
+      bytes: [ 0x0e, 0x94, 0x00, 0x00 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "jmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "call 0"
+
+  -
+    input:
+      bytes: [ 0x0e ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "jmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "call r25"

@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xe0, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "com r30"
+
+  -
+    input:
+      bytes: [ 0x10, 0x95 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "com r17"
+
+  -
+    input:
+      bytes: [ 0x40, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "com r4"
+
+  -
+    input:
+      bytes: [ 0x00, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "com r0"

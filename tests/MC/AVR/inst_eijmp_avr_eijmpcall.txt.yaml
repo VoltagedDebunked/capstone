@@ -1,0 +1,10 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x19, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "eijmpcall" ]
+    expected:
+      insns:
+        -
+          asm_text: "eijmp"

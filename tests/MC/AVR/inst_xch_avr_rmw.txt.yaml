@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xd4, 0x92 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "rmw" ]
+    expected:
+      insns:
+        -
+          asm_text: "xch Z, r13"
+
+  -
+    input:
+      bytes: [ 0x04, 0x92 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "rmw" ]
+    expected:
+      insns:
+        -
+          asm_text: "xch Z, r0"
+
+  -
+    input:
+      bytes: [ 0xf4, 0x93 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "rmw" ]
+    expected:
+      insns:
+        -
+          asm_text: "xch Z, r31"
+
+  -
+    input:
+      bytes: [ 0x34, 0x92 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "rmw" ]
+    expected:
+      insns:
+        -
+          asm_text: "xch Z, r3"

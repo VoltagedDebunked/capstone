@@ -1,0 +1,30 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x0f, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r16, 255"
+
+  -
+    input:
+      bytes: [ 0xff, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r31, 255"
+
+  -
+    input:
+      bytes: [ 0xbf, 0xef ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "ldi r27, 255"

@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x0b, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "des" ]
+    expected:
+      insns:
+        -
+          asm_text: "des 0"
+
+  -
+    input:
+      bytes: [ 0x6b, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "des" ]
+    expected:
+      insns:
+        -
+          asm_text: "des 6"
+
+  -
+    input:
+      bytes: [ 0x1b, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "des" ]
+    expected:
+      insns:
+        -
+          asm_text: "des 1"
+
+  -
+    input:
+      bytes: [ 0x8b, 0x94 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr", "des" ]
+    expected:
+      insns:
+        -
+          asm_text: "des 8"

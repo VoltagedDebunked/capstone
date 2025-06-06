@@ -1,0 +1,50 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0x15, 0x41 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbci r17, 21"
+
+  -
+    input:
+      bytes: [ 0x74, 0x4c ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbci r23, 196"
+
+  -
+    input:
+      bytes: [ 0xe4, 0x4f ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbci r30, 244"
+
+  -
+    input:
+      bytes: [ 0x30, 0x41 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbci r19, 16"
+
+  -
+    input:
+      bytes: [ 0x60 ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "sbci r22, FOO"

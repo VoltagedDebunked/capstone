@@ -1,0 +1,40 @@
+test_cases:
+  -
+    input:
+      bytes: [ 0xff, 0x0f ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "lsl r31"
+
+  -
+    input:
+      bytes: [ 0x99, 0x0f ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "lsl r25"
+
+  -
+    input:
+      bytes: [ 0x55, 0x0c ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "lsl r5"
+
+  -
+    input:
+      bytes: [ 0x00, 0x0c ]
+      arch: "CS_ARCH_AVR"
+      options: [ "avr" ]
+    expected:
+      insns:
+        -
+          asm_text: "lsl r0"
