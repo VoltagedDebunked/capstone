@@ -132,6 +132,11 @@ int main(int argc, char **argv)
         (cs_mode)CS_MODE_XTENSA_ESP8266,
         "Xtensa ESP8266"
     },
+    {
+        CS_ARCH_AVR,
+        (cs_mode)0,
+        "AVR"
+    },
   };
 
   // Read input

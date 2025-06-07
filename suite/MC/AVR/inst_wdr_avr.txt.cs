@@ -1,0 +1,2 @@
+# CS_ARCH_AVR, 0, None
+0xa8,0x95 == wdr
