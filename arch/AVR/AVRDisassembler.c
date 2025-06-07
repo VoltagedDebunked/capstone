@@ -109,7 +109,7 @@ static unsigned __attribute__((unused)) DecodeMemri(MCInst *Inst, unsigned Insn,
 static unsigned __attribute__((unused)) DecodeIORegister(MCInst *Inst, unsigned RegNo,
                                 uint64_t Address, const void *Decoder)
 {
-    if (RegNo > 63)
+    if (RegNo >= AVR_REG_ENDING)
         return MCDisassembler_Fail;
     
     MCOperand_CreateImm0(Inst, RegNo);
