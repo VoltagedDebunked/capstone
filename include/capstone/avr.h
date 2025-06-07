@@ -54,7 +54,7 @@ typedef enum avr_group_type {
     AVR_GRP_BRANCH_RELATIVE, // All relative branching instructions
     
     // Architecture-specific groups
-    AVR_GRP_ARITHMETIC,   // Arithmetic operations
+    AVR_GRP_ARITHMETIC = 128,   // Arithmetic operations
     AVR_GRP_LOGIC,        // Logic operations
     AVR_GRP_DATA_TRANSFER,// Data transfer operations
     AVR_GRP_BIT_TEST,     // Bit test operations
