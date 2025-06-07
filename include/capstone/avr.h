@@ -196,10 +196,10 @@ typedef enum avr_insn {
 
 // AVR operand types
 typedef enum avr_op_type {
-    AVR_OP_INVALID = 0, // Uninitialized/invalid operand
-    AVR_OP_REG,         // Register operand
-    AVR_OP_IMM,         // Immediate operand
-    AVR_OP_MEM,         // Memory operand
+    AVR_OP_INVALID = CS_OP_INVALID, // Uninitialized/invalid operand
+    AVR_OP_REG = CS_OP_REG,         // Register operand
+    AVR_OP_IMM = CS_OP_IMM,         // Immediate operand
+    AVR_OP_MEM = CS_OP_MEM,         // Memory operand
 } avr_op_type;
 
 // AVR memory operand
