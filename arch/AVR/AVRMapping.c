@@ -210,7 +210,7 @@ const char *AVR_reg_name(csh handle, unsigned int reg)
         return NULL;  // Invalid register ID
     }
     
-    const char *name = id2name(reg_name_maps, sizeof(reg_name_maps)/sizeof(reg_name_maps[0]), reg);
+    const char *name = id2name(reg_name_maps, ARR_SIZE(reg_name_maps), reg);
     if (!name) {
         // Debug: print what register ID we couldn't find
         // You can remove this later
