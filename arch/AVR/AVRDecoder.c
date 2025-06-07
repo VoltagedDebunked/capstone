@@ -14,10 +14,18 @@
 #include "../../MCRegisterInfo.h"
 #include "../../MCDisassembler.h"
 #include "../../utils.h"
+#include "../../MathExtras.h"
 #include "AVRDisassembler.h"
 #include "AVRMapping.h"
 
 #ifdef CAPSTONE_HAS_AVR
+
+// Addressing mode enumeration
+typedef enum {
+    AVR_AM_NORMAL = 0,    // Normal addressing
+    AVR_AM_POST_INC = 1,  // Post-increment
+    AVR_AM_PRE_DEC = 2    // Pre-decrement
+} avr_addressing_mode_t;
 
 // Instruction decoder table for 16-bit instructions
 typedef struct {
@@ -57,6 +65,18 @@ static DecodeStatus DecodeBranchSR(MCInst *MI, uint16_t insn, uint64_t addr, con
 static DecodeStatus DecodeRdRrMul(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeIOOut(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeStatusBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
+
+// Sign extension helper function for 12-bit values
+static inline int16_t SignExtend12(uint16_t val)
+{
+    return (int16_t)(val << 4) >> 4;
+}
+
+// Sign extension helper function for 7-bit values
+static inline int8_t SignExtend7(uint8_t val)
+{
+    return (int8_t)(val << 1) >> 1;
+}
 
 // 16-bit instruction decode table - ordered by specificity (most specific first)
 static const avr_decode16_entry_t decode16_table[] = {
@@ -300,8 +320,8 @@ static DecodeStatus DecodeRd(MCInst *MI, uint16_t insn, uint64_t addr, const voi
 
 static DecodeStatus DecodeBranch(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    int16_t offset = (int16_t)(insn << 4) >> 4; // Sign extend 12-bit offset
-    int64_t target = addr + (offset * 2) + 2;   // PC-relative, word-addressed
+    int16_t offset = SignExtend12(insn & 0xFFF); // Sign extend 12-bit offset
+    int64_t target = addr + (offset * 2) + 2;    // PC-relative, word-addressed
     
     MCOperand_CreateImm0(MI, target);
     
@@ -310,9 +330,9 @@ static DecodeStatus DecodeBranch(MCInst *MI, uint16_t insn, uint64_t addr, const
 
 static DecodeStatus DecodeBranchSR(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    int8_t offset = (int8_t)(insn << 1) >> 1;  // Sign extend 7-bit offset
-    int64_t target = addr + (offset * 2) + 2;  // PC-relative, word-addressed
-    unsigned bit = insn & 0x07;                // Status bit
+    int8_t offset = SignExtend7((insn >> 3) & 0x7F);  // Sign extend 7-bit offset
+    int64_t target = addr + (offset * 2) + 2;         // PC-relative, word-addressed
+    unsigned bit = insn & 0x07;                       // Status bit
     
     // For generic BRBS/BRBC, add the bit operand
     unsigned opcode = MCInst_getOpcode(MI);
@@ -327,249 +347,267 @@ static DecodeStatus DecodeBranchSR(MCInst *MI, uint16_t insn, uint64_t addr, con
 
 static DecodeStatus DecodeIOBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned A = (insn >> 3) & 0x1F;
-    unsigned b = insn & 0x07;
-    
-    MCOperand_CreateImm0(MI, A);
-    MCOperand_CreateImm0(MI, b);
-    
-    return MCDisassembler_Success;
+   unsigned A = (insn >> 3) & 0x1F;
+   unsigned b = insn & 0x07;
+   
+   MCOperand_CreateImm0(MI, A);
+   MCOperand_CreateImm0(MI, b);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeRegBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = (insn >> 4) & 0x1F;
-    unsigned b = insn & 0x07;
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    MCOperand_CreateImm0(MI, b);
-    
-    return MCDisassembler_Success;
+   unsigned Rd = (insn >> 4) & 0x1F;
+   unsigned b = insn & 0x07;
+   
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   MCOperand_CreateImm0(MI, b);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeSkipBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rr = (insn >> 4) & 0x1F;
-    unsigned b = insn & 0x07;
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);
-    MCOperand_CreateImm0(MI, b);
-    
-    return MCDisassembler_Success;
+   unsigned Rr = (insn >> 4) & 0x1F;
+   unsigned b = insn & 0x07;
+   
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);
+   MCOperand_CreateImm0(MI, b);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeIOImm(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = (insn >> 4) & 0x1F;
-    unsigned A = ((insn >> 5) & 0x30) | (insn & 0x0F);
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    MCOperand_CreateImm0(MI, A);
-    
-    return MCDisassembler_Success;
+   unsigned Rd = (insn >> 4) & 0x1F;
+   unsigned A = ((insn >> 5) & 0x30) | (insn & 0x0F);
+   
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   MCOperand_CreateImm0(MI, A);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeIOOut(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rr = (insn >> 4) & 0x1F;
-    unsigned A = ((insn >> 5) & 0x30) | (insn & 0x0F);
-    
-    MCOperand_CreateImm0(MI, A);         // I/O address first
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);  // Register second
-    
-    return MCDisassembler_Success;
+   unsigned Rr = (insn >> 4) & 0x1F;
+   unsigned A = ((insn >> 5) & 0x30) | (insn & 0x0F);
+   
+   MCOperand_CreateImm0(MI, A);         // I/O address first
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);  // Register second
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeWordPair(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = ((insn >> 4) & 0x03) * 2 + 24; // R24, R26, R28, R30
-    unsigned K = ((insn >> 2) & 0x30) | (insn & 0x0F);
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    MCOperand_CreateImm0(MI, K);
-    
-    return MCDisassembler_Success;
+   unsigned Rd = ((insn >> 4) & 0x03) * 2 + 24; // R24, R26, R28, R30
+   unsigned K = ((insn >> 2) & 0x30) | (insn & 0x0F);
+   
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   MCOperand_CreateImm0(MI, K);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeIndirect(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = (insn >> 4) & 0x1F;
-    unsigned ptr = 0;
-    unsigned mode = 0; // 0=normal, 1=post-inc, 2=pre-dec
-    
-    // Determine pointer register and addressing mode based on instruction bits
-    if ((insn & 0x000F) == 0x000C) {        // X register
-        ptr = AVR_REG_X;
-        mode = 0;
-    } else if ((insn & 0x000F) == 0x000D) { // X+ register
-        ptr = AVR_REG_X;
-        mode = 1;
-    } else if ((insn & 0x000F) == 0x000E) { // -X register
-        ptr = AVR_REG_X;
-        mode = 2;
-    } else if ((insn & 0x000F) == 0x0008) { // Y register
-        ptr = AVR_REG_Y;
-        mode = 0;
-    } else if ((insn & 0x000F) == 0x0009) { // Y+ register
-        ptr = AVR_REG_Y;
-        mode = 1;
-    } else if ((insn & 0x000F) == 0x000A) { // -Y register
-        ptr = AVR_REG_Y;
-        mode = 2;
-    } else if ((insn & 0x000F) == 0x0000) { // Z register
-        ptr = AVR_REG_Z;
-        mode = 0;
-    } else if ((insn & 0x000F) == 0x0001) { // Z+ register
-        ptr = AVR_REG_Z;
-        mode = 1;
-    } else if ((insn & 0x000F) == 0x0002) { // -Z register
-        ptr = AVR_REG_Z;
-        mode = 2;
-    } else if ((insn & 0x000F) == 0x0004) { // Z register for LPM
-        ptr = AVR_REG_Z;
-        mode = 0;
-    } else if ((insn & 0x000F) == 0x0005) { // Z+ register for LPM
-        ptr = AVR_REG_Z;
-        mode = 1;
-    } else {
-        return MCDisassembler_Fail;
-    }
-    
-    // For ST instructions, register order is different
-    unsigned opcode = MCInst_getOpcode(MI);
-    if (opcode == AVR_INS_ST) {
-        MCOperand_CreateReg0(MI, ptr);
-        if (mode == 1) MCOperand_CreateImm0(MI, 1);      // post-increment
-        else if (mode == 2) MCOperand_CreateImm0(MI, -1); // pre-decrement
-        MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    } else {
-        MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-        MCOperand_CreateReg0(MI, ptr);
-        if (mode == 1) MCOperand_CreateImm0(MI, 1);      // post-increment
-        else if (mode == 2) MCOperand_CreateImm0(MI, -1); // pre-decrement
-    }
-    
-    return MCDisassembler_Success;
+   unsigned Rd = (insn >> 4) & 0x1F;
+   unsigned ptr = 0;
+   avr_addressing_mode_t mode = AVR_AM_NORMAL;
+   
+   // Determine pointer register and addressing mode based on instruction bits
+   switch (insn & 0x000F) {
+   case 0x000C:        // X register
+       ptr = AVR_REG_X;
+       mode = AVR_AM_NORMAL;
+       break;
+   case 0x000D:        // X+ register
+       ptr = AVR_REG_X;
+       mode = AVR_AM_POST_INC;
+       break;
+   case 0x000E:        // -X register
+       ptr = AVR_REG_X;
+       mode = AVR_AM_PRE_DEC;
+       break;
+   case 0x0008:        // Y register
+       ptr = AVR_REG_Y;
+       mode = AVR_AM_NORMAL;
+       break;
+   case 0x0009:        // Y+ register
+       ptr = AVR_REG_Y;
+       mode = AVR_AM_POST_INC;
+       break;
+   case 0x000A:        // -Y register
+       ptr = AVR_REG_Y;
+       mode = AVR_AM_PRE_DEC;
+       break;
+   case 0x0000:        // Z register
+       ptr = AVR_REG_Z;
+       mode = AVR_AM_NORMAL;
+       break;
+   case 0x0001:        // Z+ register
+       ptr = AVR_REG_Z;
+       mode = AVR_AM_POST_INC;
+       break;
+   case 0x0002:        // -Z register
+       ptr = AVR_REG_Z;
+       mode = AVR_AM_PRE_DEC;
+       break;
+   case 0x0004:        // Z register for LPM
+       ptr = AVR_REG_Z;
+       mode = AVR_AM_NORMAL;
+       break;
+   case 0x0005:        // Z+ register for LPM
+       ptr = AVR_REG_Z;
+       mode = AVR_AM_POST_INC;
+       break;
+   default:
+       return MCDisassembler_Fail;
+   }
+   
+   // For ST instructions, register order is different
+   unsigned opcode = MCInst_getOpcode(MI);
+   if (opcode == AVR_INS_ST) {
+       MCOperand_CreateReg0(MI, ptr);
+       if (mode == AVR_AM_POST_INC) {
+           MCOperand_CreateImm0(MI, 1);      // post-increment
+       } else if (mode == AVR_AM_PRE_DEC) {
+           MCOperand_CreateImm0(MI, -1);     // pre-decrement
+       }
+       MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   } else {
+       MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+       MCOperand_CreateReg0(MI, ptr);
+       if (mode == AVR_AM_POST_INC) {
+           MCOperand_CreateImm0(MI, 1);      // post-increment
+       } else if (mode == AVR_AM_PRE_DEC) {
+           MCOperand_CreateImm0(MI, -1);     // pre-decrement
+       }
+   }
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeIndirectDisp(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = (insn >> 4) & 0x1F;
-    unsigned q = ((insn >> 8) & 0x20) | ((insn >> 7) & 0x18) | (insn & 0x07);
-    unsigned ptr = ((insn >> 3) & 0x01) ? AVR_REG_Z : AVR_REG_Y;
-    
-    // For STD instructions, operand order is different
-    unsigned opcode = MCInst_getOpcode(MI);
-    if (opcode == AVR_INS_STD) {
-        MCOperand_CreateReg0(MI, ptr);
-        MCOperand_CreateImm0(MI, q);
-        MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    } else {
-        MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-        MCOperand_CreateReg0(MI, ptr);
-        MCOperand_CreateImm0(MI, q);
-    }
-    
-    return MCDisassembler_Success;
+   unsigned Rd = (insn >> 4) & 0x1F;
+   unsigned q = ((insn >> 8) & 0x20) | ((insn >> 7) & 0x18) | (insn & 0x07);
+   unsigned ptr = ((insn >> 3) & 0x01) ? AVR_REG_Z : AVR_REG_Y;
+   
+   // For STD instructions, operand order is different
+   unsigned opcode = MCInst_getOpcode(MI);
+   if (opcode == AVR_INS_STD) {
+       MCOperand_CreateReg0(MI, ptr);
+       MCOperand_CreateImm0(MI, q);
+       MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   } else {
+       MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+       MCOperand_CreateReg0(MI, ptr);
+       MCOperand_CreateImm0(MI, q);
+   }
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeNoOperands(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    // No operands to decode
-    return MCDisassembler_Success;
+   // No operands to decode
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeStatusBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned bit = (insn >> 4) & 0x07;
-    
-    MCOperand_CreateImm0(MI, bit);
-    
-    return MCDisassembler_Success;
+   unsigned bit = (insn >> 4) & 0x07;
+   
+   MCOperand_CreateImm0(MI, bit);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeJmp32(MCInst *MI, uint32_t insn, uint64_t addr, const void *decoder)
 {
-    // Extract 22-bit address from 32-bit instruction
-    uint32_t k = ((insn >> 3) & 0x3E) | (insn & 0x01) | ((insn >> 16) & 0xFFFF00);
-    k = (k << 1); // Convert to byte address
-    
-    MCOperand_CreateImm0(MI, k);
-    
-    return MCDisassembler_Success;
+   // Extract 22-bit address from 32-bit instruction
+   uint32_t k = ((insn >> 3) & 0x3E) | (insn & 0x01) | ((insn >> 16) & 0xFFFF00);
+   k = (k << 1); // Convert to byte address
+   
+   MCOperand_CreateImm0(MI, k);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeCall32(MCInst *MI, uint32_t insn, uint64_t addr, const void *decoder)
 {
-    // Extract 22-bit address from 32-bit instruction
-    uint32_t k = ((insn >> 3) & 0x3E) | (insn & 0x01) | ((insn >> 16) & 0xFFFF00);
-    k = (k << 1); // Convert to byte address
-    
-    MCOperand_CreateImm0(MI, k);
-    
-    return MCDisassembler_Success;
+   // Extract 22-bit address from 32-bit instruction
+   uint32_t k = ((insn >> 3) & 0x3E) | (insn & 0x01) | ((insn >> 16) & 0xFFFF00);
+   k = (k << 1); // Convert to byte address
+   
+   MCOperand_CreateImm0(MI, k);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeLds32(MCInst *MI, uint32_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rd = (insn >> 4) & 0x1F;
-    uint16_t k = insn >> 16; // 16-bit data space address
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    MCOperand_CreateImm0(MI, k);
-    
-    return MCDisassembler_Success;
+   unsigned Rd = (insn >> 4) & 0x1F;
+   uint16_t k = insn >> 16; // 16-bit data space address
+   
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
+   MCOperand_CreateImm0(MI, k);
+   
+   return MCDisassembler_Success;
 }
 
 static DecodeStatus DecodeSts32(MCInst *MI, uint32_t insn, uint64_t addr, const void *decoder)
 {
-    unsigned Rr = (insn >> 4) & 0x1F;
-    uint16_t k = insn >> 16; // 16-bit data space address
-    
-    MCOperand_CreateImm0(MI, k);        // Address first
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);  // Register second
-    
-    return MCDisassembler_Success;
+   unsigned Rr = (insn >> 4) & 0x1F;
+   uint16_t k = insn >> 16; // 16-bit data space address
+   
+   MCOperand_CreateImm0(MI, k);        // Address first
+   MCOperand_CreateReg0(MI, AVR_REG_R0 + Rr);  // Register second
+   
+   return MCDisassembler_Success;
 }
 
 // Main 16-bit instruction decoder
 DecodeStatus AVR_getInstruction16(MCInst *MI, uint16_t Insn, uint64_t Address, void *Decoder)
 {
-    for (size_t i = 0; i < ARR_SIZE(decode16_table); i++) {
-        const avr_decode16_entry_t *entry = &decode16_table[i];
-        
-        if ((Insn & entry->mask) == entry->pattern) {
-            MCInst_setOpcode(MI, entry->instruction);
-            return entry->decoder(MI, Insn, Address, Decoder);
-        }
-    }
-    
-    return MCDisassembler_Fail;
+   for (size_t i = 0; i < ARR_SIZE(decode16_table); i++) {
+       const avr_decode16_entry_t *entry = &decode16_table[i];
+       
+       if ((Insn & entry->mask) == entry->pattern) {
+           MCInst_setOpcode(MI, entry->instruction);
+           return entry->decoder(MI, Insn, Address, Decoder);
+       }
+   }
+   
+   return MCDisassembler_Fail;
 }
 
 // Main 32-bit instruction decoder
 DecodeStatus AVR_getInstruction32(MCInst *MI, uint32_t Insn, uint64_t Address, void *Decoder)
 {
-    for (size_t i = 0; i < ARR_SIZE(decode32_table); i++) {
-        const avr_decode32_entry_t *entry = &decode32_table[i];
-        
-        if ((Insn & entry->mask) == entry->pattern) {
-            MCInst_setOpcode(MI, entry->instruction);
-            return entry->decoder(MI, Insn, Address, Decoder);
-        }
-    }
-    
-    return MCDisassembler_Fail;
+   for (size_t i = 0; i < ARR_SIZE(decode32_table); i++) {
+       const avr_decode32_entry_t *entry = &decode32_table[i];
+       
+       if ((Insn & entry->mask) == entry->pattern) {
+           MCInst_setOpcode(MI, entry->instruction);
+           return entry->decoder(MI, Insn, Address, Decoder);
+       }
+   }
+   
+   return MCDisassembler_Fail;
 }
 
 // Helper function to determine if instruction is 32-bit
 bool AVR_is32BitInstruction(uint16_t firstWord)
 {
-    // 32-bit instructions: JMP, CALL, LDS, STS
-    return ((firstWord & 0xFE0E) == 0x940C) ||  // JMP
-           ((firstWord & 0xFE0E) == 0x940E) ||  // CALL
-           ((firstWord & 0xFE0F) == 0x9000) ||  // LDS
-           ((firstWord & 0xFE0F) == 0x9200);    // STS
+   // 32-bit instructions: JMP, CALL, LDS, STS
+   return ((firstWord & 0xFE0E) == 0x940C) ||  // JMP
+          ((firstWord & 0xFE0E) == 0x940E) ||  // CALL
+          ((firstWord & 0xFE0F) == 0x9000) ||  // LDS
+          ((firstWord & 0xFE0F) == 0x9200);    // STS
 }
 
 #endif

@@ -17,65 +17,26 @@
 
 #ifdef CAPSTONE_HAS_AVR
 
-static const char *getRegisterName(unsigned RegNo)
-{
-    switch (RegNo) {
-    case AVR_REG_R0: return "r0";
-    case AVR_REG_R1: return "r1";
-    case AVR_REG_R2: return "r2";
-    case AVR_REG_R3: return "r3";
-    case AVR_REG_R4: return "r4";
-    case AVR_REG_R5: return "r5";
-    case AVR_REG_R6: return "r6";
-    case AVR_REG_R7: return "r7";
-    case AVR_REG_R8: return "r8";
-    case AVR_REG_R9: return "r9";
-    case AVR_REG_R10: return "r10";
-    case AVR_REG_R11: return "r11";
-    case AVR_REG_R12: return "r12";
-    case AVR_REG_R13: return "r13";
-    case AVR_REG_R14: return "r14";
-    case AVR_REG_R15: return "r15";
-    case AVR_REG_R16: return "r16";
-    case AVR_REG_R17: return "r17";
-    case AVR_REG_R18: return "r18";
-    case AVR_REG_R19: return "r19";
-    case AVR_REG_R20: return "r20";
-    case AVR_REG_R21: return "r21";
-    case AVR_REG_R22: return "r22";
-    case AVR_REG_R23: return "r23";
-    case AVR_REG_R24: return "r24";
-    case AVR_REG_R25: return "r25";
-    case AVR_REG_R26: return "r26";
-    case AVR_REG_R27: return "r27";
-    case AVR_REG_R28: return "r28";
-    case AVR_REG_R29: return "r29";
-    case AVR_REG_R30: return "r30";
-    case AVR_REG_R31: return "r31";
-    case AVR_REG_PC: return "PC";
-    case AVR_REG_SREG: return "SREG";
-    default: 
-        // Handle special cases for pointer registers
-        if (RegNo == AVR_REG_X) return "X";
-        if (RegNo == AVR_REG_Y) return "Y";
-        if (RegNo == AVR_REG_Z) return "Z";
-        if (RegNo == AVR_REG_SP) return "SP";
-        return NULL;
-    }
-}
+#define MAX_AVR_OPERANDS 3
 
+// Use the existing mapping function instead of duplicating register names
 static void printRegName(SStream *O, unsigned RegNo)
 {
-    const char *name = getRegisterName(RegNo);
+    const char *name = AVR_reg_name(0, RegNo);
     if (name) {
         SStream_concat0(O, name);
     } else {
-        SStream_concat(O, "UNKNOWN_REG_%" PRIu32, RegNo);
+        SStream_concat0(O, "UNKNOWN_REG_");
+        printUInt32(O, RegNo);
     }
 }
 
 static void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
+    if (OpNo >= MCInst_getNumOperands(MI)) {
+        return; // Safety check
+    }
+    
     MCOperand *Op = MCInst_getOperand(MI, OpNo);
     
     if (MCOperand_isReg(Op)) {
@@ -83,25 +44,36 @@ static void printOperand(MCInst *MI, unsigned OpNo, SStream *O)
         printRegName(O, reg);
     } else if (MCOperand_isImm(Op)) {
         int64_t imm = MCOperand_getImm(Op);
-        if (imm >= 0 && imm <= 9)
-            SStream_concat(O, "%"PRId64, imm);
-        else
-            SStream_concat(O, "$0x%"PRIx64, (uint64_t)imm);
+        if (imm >= 0 && imm <= 9) {
+            printInt64(O, imm);
+        } else {
+            SStream_concat0(O, "$0x");
+            printUInt64(O, (uint64_t)imm);
+        }
     }
 }
 
 static void __attribute__((unused)) printImmOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
+    if (OpNo >= MCInst_getNumOperands(MI)) {
+        return; // Safety check
+    }
+    
     MCOperand *Op = MCInst_getOperand(MI, OpNo);
     
     if (MCOperand_isImm(Op)) {
         int64_t imm = MCOperand_getImm(Op);
-        SStream_concat(O, "0x%"PRIx64, (uint64_t)imm);
+        SStream_concat0(O, "0x");
+        printUInt64(O, (uint64_t)imm);
     }
 }
 
 static void __attribute__((unused)) printMemOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
+    if (OpNo + 1 >= MCInst_getNumOperands(MI)) {
+        return; // Safety check
+    }
+    
     MCOperand *Base = MCInst_getOperand(MI, OpNo);
     MCOperand *Disp = MCInst_getOperand(MI, OpNo + 1);
     
@@ -110,7 +82,8 @@ static void __attribute__((unused)) printMemOperand(MCInst *MI, unsigned OpNo, S
         if (MCOperand_isImm(Disp)) {
             int64_t disp = MCOperand_getImm(Disp);
             if (disp != 0) {
-                SStream_concat(O, "+%"PRId64, disp);
+                SStream_concat0(O, "+");
+                printInt64(O, disp);
             }
         }
     }
@@ -118,36 +91,77 @@ static void __attribute__((unused)) printMemOperand(MCInst *MI, unsigned OpNo, S
 
 static void __attribute__((unused)) printIOOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
+    if (OpNo >= MCInst_getNumOperands(MI)) {
+        return; // Safety check
+    }
+    
     MCOperand *Op = MCInst_getOperand(MI, OpNo);
     
     if (MCOperand_isImm(Op)) {
         int64_t addr = MCOperand_getImm(Op);
-        SStream_concat(O, "0x%02"PRIx64, (uint64_t)addr);
+        SStream_concat0(O, "0x");
+        if (addr <= 0xFF) {
+            printUInt32Bang(O, (uint32_t)addr);
+        } else {
+            printUInt64(O, (uint64_t)addr);
+        }
     }
 }
 
 static void __attribute__((unused)) printBranchOperand(MCInst *MI, unsigned OpNo, SStream *O)
 {
+    if (OpNo >= MCInst_getNumOperands(MI)) {
+        return; // Safety check
+    }
+    
     MCOperand *Op = MCInst_getOperand(MI, OpNo);
     
     if (MCOperand_isImm(Op)) {
         int64_t offset = MCOperand_getImm(Op);
-        if (offset >= 0)
-            SStream_concat(O, ".+%"PRId64, offset * 2 + 2);
-        else
-            SStream_concat(O, ".%"PRId64, offset * 2 + 2);
+        if (offset >= 0) {
+            SStream_concat0(O, ".+");
+            printInt64(O, offset * 2 + 2);
+        } else {
+            SStream_concat0(O, ".");
+            printInt64(O, offset * 2 + 2);
+        }
+    }
+}
+
+// Helper function to safely set operand details
+static void set_operand_details(cs_avr *avr, unsigned int op_index, MCOperand *Op)
+{
+    if (!avr || op_index >= MAX_AVR_OPERANDS || !Op) {
+        return;
+    }
+    
+    cs_avr_op *op = &avr->operands[op_index];
+    
+    if (MCOperand_isReg(Op)) {
+        op->type = AVR_OP_REG;
+        op->reg = MCOperand_getReg(Op);
+    } else if (MCOperand_isImm(Op)) {
+        op->type = AVR_OP_IMM;
+        op->imm = (int32_t)MCOperand_getImm(Op);
+    } else {
+        op->type = AVR_OP_INVALID;
     }
 }
 
 void AVR_printInst(MCInst *MI, SStream *O, void *PrinterInfo)
 {
+    if (!MI || !O) {
+        return; // Safety check
+    }
+    
     unsigned OpCode = MCInst_getOpcode(MI);
     const char *mnemonic = AVR_insn_name((csh)PrinterInfo, OpCode);
     
     if (mnemonic) {
         SStream_concat0(O, mnemonic);
     } else {
-        SStream_concat(O, "UNKNOWN_%u", OpCode);
+        SStream_concat0(O, "UNKNOWN_");
+        printUInt32(O, OpCode);
     }
     
     unsigned numOps = MCInst_getNumOperands(MI);
@@ -162,34 +176,26 @@ void AVR_printInst(MCInst *MI, SStream *O, void *PrinterInfo)
         }
     }
     
-    // Set up instruction details for Capstone - with safety checks
+    // Set up instruction details for Capstone - with comprehensive safety checks
     if (MI->flat_insn && MI->flat_insn->detail) {
         cs_avr *avr = &(MI->flat_insn->detail->avr);
-        if (avr) {
-            avr->op_count = 0;
-            
-            // Fill in operand details
-            for (unsigned i = 0; i < numOps && i < 3 && avr->op_count < 3; i++) {
-                MCOperand *Op = MCInst_getOperand(MI, i);
-                if (Op) {
-                    cs_avr_op *op = &avr->operands[avr->op_count];
-                    
-                    if (MCOperand_isReg(Op)) {
-                        op->type = AVR_OP_REG;
-                        op->reg = MCOperand_getReg(Op);
-                        avr->op_count++;
-                    } else if (MCOperand_isImm(Op)) {
-                        op->type = AVR_OP_IMM;
-                        op->imm = (int32_t)MCOperand_getImm(Op);
-                        avr->op_count++;
-                    }
-                }
+        
+        // Initialize operand count
+        avr->op_count = 0;
+        
+        // Fill in operand details with bounds checking
+        unsigned max_ops = (numOps < MAX_AVR_OPERANDS) ? numOps : MAX_AVR_OPERANDS;
+        for (unsigned i = 0; i < max_ops; i++) {
+            MCOperand *Op = MCInst_getOperand(MI, i);
+            if (Op && (MCOperand_isReg(Op) || MCOperand_isImm(Op))) {
+                set_operand_details(avr, avr->op_count, Op);
+                avr->op_count++;
             }
-            
-            // Add instruction groups - with safety check
-            if (PrinterInfo) {
-                AVR_get_insn_id((cs_struct *)PrinterInfo, MI->flat_insn, OpCode);
-            }
+        }
+        
+        // Add instruction groups with safety check
+        if (PrinterInfo) {
+            AVR_get_insn_id((cs_struct *)PrinterInfo, MI->flat_insn, OpCode);
         }
     }
 }

@@ -12,6 +12,10 @@
 
 #ifdef CAPSTONE_HAS_AVR
 
+#define MAX_GROUPS_PER_INSN 8
+#define MAX_REGS_READ 4
+#define MAX_REGS_WRITE 4
+
 typedef struct name_map {
     unsigned int id;
     const char *name;
@@ -204,6 +208,39 @@ static const name_map group_name_maps[] = {
     { AVR_GRP_MCU_CONTROL, "mcu_control" },
 };
 
+// Helper function to safely add a group to instruction details
+static inline void add_group_safe(cs_insn *insn, unsigned int group)
+{
+    if (insn->detail && insn->detail->groups_count < MAX_GROUPS_PER_INSN) {
+        insn->detail->groups[insn->detail->groups_count++] = group;
+    }
+}
+
+// Helper function to safely add multiple groups to instruction details
+static inline void add_groups_safe(cs_insn *insn, const unsigned int *groups, size_t count)
+{
+    if (!insn->detail) return;
+    
+    for (size_t i = 0; i < count && insn->detail->groups_count < MAX_GROUPS_PER_INSN; i++) {
+        insn->detail->groups[insn->detail->groups_count++] = groups[i];
+    }
+}
+
+// Helper functions for register access tracking
+static inline void add_read_reg_safe(cs_regs regs_read, uint8_t *count, unsigned int reg)
+{
+    if (*count < MAX_REGS_READ) {
+        regs_read[(*count)++] = reg;
+    }
+}
+
+static inline void add_write_reg_safe(cs_regs regs_write, uint8_t *count, unsigned int reg)
+{
+    if (*count < MAX_REGS_WRITE) {
+        regs_write[(*count)++] = reg;
+    }
+}
+
 const char *AVR_reg_name(csh handle, unsigned int reg)
 {
     if (reg == 0 || reg >= AVR_REG_ENDING) {
@@ -223,12 +260,12 @@ const char *AVR_reg_name(csh handle, unsigned int reg)
 
 const char *AVR_insn_name(csh handle, unsigned int insn)
 {
-    return id2name(insn_name_maps, sizeof(insn_name_maps)/sizeof(insn_name_maps[0]), insn);
+    return id2name(insn_name_maps, ARR_SIZE(insn_name_maps), insn);
 }
 
 const char *AVR_group_name(csh handle, unsigned int group)
 {
-    return id2name(group_name_maps, sizeof(group_name_maps)/sizeof(group_name_maps[0]), group);
+    return id2name(group_name_maps, ARR_SIZE(group_name_maps), group);
 }
 
 void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
@@ -247,38 +284,29 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_IJMP:
     case AVR_INS_EIJMP:
     case AVR_INS_JMP:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_JUMP;
-        }
+        add_group_safe(insn, AVR_GRP_JUMP);
         break;
         
     case AVR_INS_RCALL:
     case AVR_INS_ICALL:
     case AVR_INS_EICALL:
     case AVR_INS_CALL:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_CALL;
-        }
+        add_group_safe(insn, AVR_GRP_CALL);
         break;
         
     case AVR_INS_RET:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_RET;
-        }
+        add_group_safe(insn, AVR_GRP_RET);
         break;
         
-    case AVR_INS_RETI:
-        if (insn->detail->groups_count < 7) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_IRET;
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_INT;
-        }
+    case AVR_INS_RETI: {
+        const unsigned int groups[] = { AVR_GRP_IRET, AVR_GRP_INT };
+        add_groups_safe(insn, groups, ARR_SIZE(groups));
         break;
+    }
         
     case AVR_INS_SEI:
     case AVR_INS_CLI:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_INT;
-        }
+        add_group_safe(insn, AVR_GRP_INT);
         break;
         
     case AVR_INS_BREQ:
@@ -301,9 +329,7 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_BRID:
     case AVR_INS_BRBS:
     case AVR_INS_BRBC:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_BRANCH_RELATIVE;
-        }
+        add_group_safe(insn, AVR_GRP_BRANCH_RELATIVE);
         break;
         
     case AVR_INS_ADD:
@@ -323,9 +349,7 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_FMULS:
     case AVR_INS_FMULSU:
     case AVR_INS_NEG:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_ARITHMETIC;
-        }
+        add_group_safe(insn, AVR_GRP_ARITHMETIC);
         break;
         
     case AVR_INS_AND:
@@ -345,9 +369,7 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_ROR:
     case AVR_INS_ASR:
     case AVR_INS_SWAP:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_LOGIC;
-        }
+        add_group_safe(insn, AVR_GRP_LOGIC);
         break;
         
     case AVR_INS_MOV:
@@ -366,9 +388,7 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_OUT:
     case AVR_INS_PUSH:
     case AVR_INS_POP:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_DATA_TRANSFER;
-        }
+        add_group_safe(insn, AVR_GRP_DATA_TRANSFER);
         break;
         
     case AVR_INS_SBRC:
@@ -395,18 +415,14 @@ void AVR_get_insn_id(cs_struct *h, cs_insn *insn, unsigned int id)
     case AVR_INS_CLT:
     case AVR_INS_SEH:
     case AVR_INS_CLH:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_BIT_TEST;
-        }
+        add_group_safe(insn, AVR_GRP_BIT_TEST);
         break;
         
     case AVR_INS_NOP:
     case AVR_INS_SLEEP:
     case AVR_INS_WDR:
     case AVR_INS_BREAK:
-        if (insn->detail->groups_count < 8) {
-            insn->detail->groups[insn->detail->groups_count++] = AVR_GRP_MCU_CONTROL;
-        }
+        add_group_safe(insn, AVR_GRP_MCU_CONTROL);
         break;
         
     case AVR_INS_CP:
@@ -425,8 +441,11 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     uint8_t read_count = 0;
     uint8_t write_count = 0;
     
-    if (!insn->detail)
+    if (!insn->detail) {
+        *regs_read_count = 0;
+        *regs_write_count = 0;
         return;
+    }
     
     const cs_avr *avr = &insn->detail->avr;
     
@@ -443,11 +462,11 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_CPC:
         // Two register operations: Rd = Rd op Rr
         if (avr->op_count >= 2) {
-            regs_read[read_count++] = avr->operands[0].reg;
-            regs_read[read_count++] = avr->operands[1].reg;
-            regs_write[write_count++] = avr->operands[0].reg;
+            add_read_reg_safe(regs_read, &read_count, avr->operands[0].reg);
+            add_read_reg_safe(regs_read, &read_count, avr->operands[1].reg);
+            add_write_reg_safe(regs_write, &write_count, avr->operands[0].reg);
         }
-        regs_write[write_count++] = AVR_REG_SREG;
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_SREG);
         break;
         
     case AVR_INS_SUBI:
@@ -457,19 +476,20 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_CPI:
         // Register + immediate operations: Rd = Rd op K
         if (avr->op_count >= 1) {
-            regs_read[read_count++] = avr->operands[0].reg;
-            regs_write[write_count++] = avr->operands[0].reg;
+            add_read_reg_safe(regs_read, &read_count, avr->operands[0].reg);
+            add_write_reg_safe(regs_write, &write_count, avr->operands[0].reg);
         }
-        regs_write[write_count++] = AVR_REG_SREG;
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_SREG);
         break;
         
     case AVR_INS_MOV:
     case AVR_INS_LDI:
         // Move operations: Rd = Rr or Rd = K
         if (avr->op_count >= 2) {
-            if (avr->operands[1].type == AVR_OP_REG)
-                regs_read[read_count++] = avr->operands[1].reg;
-            regs_write[write_count++] = avr->operands[0].reg;
+            if (avr->operands[1].type == AVR_OP_REG) {
+                add_read_reg_safe(regs_read, &read_count, avr->operands[1].reg);
+            }
+            add_write_reg_safe(regs_write, &write_count, avr->operands[0].reg);
         }
         break;
         
@@ -477,8 +497,8 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_LDD:
         // Load operations: Rd = [Rr+k]
         if (avr->op_count >= 2) {
-            regs_read[read_count++] = avr->operands[1].reg;
-            regs_write[write_count++] = avr->operands[0].reg;
+            add_read_reg_safe(regs_read, &read_count, avr->operands[1].reg);
+            add_write_reg_safe(regs_write, &write_count, avr->operands[0].reg);
         }
         break;
         
@@ -486,26 +506,26 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_STD:
         // Store operations: [Rr+k] = Rd
         if (avr->op_count >= 2) {
-            regs_read[read_count++] = avr->operands[0].reg;
-            regs_read[read_count++] = avr->operands[1].reg;
+            add_read_reg_safe(regs_read, &read_count, avr->operands[0].reg);
+            add_read_reg_safe(regs_read, &read_count, avr->operands[1].reg);
         }
         break;
         
     case AVR_INS_PUSH:
         // Push: SP--, [SP] = Rr
         if (avr->op_count >= 1) {
-            regs_read[read_count++] = avr->operands[0].reg;
-            regs_read[read_count++] = AVR_REG_SP;
-            regs_write[write_count++] = AVR_REG_SP;
+            add_read_reg_safe(regs_read, &read_count, avr->operands[0].reg);
+            add_read_reg_safe(regs_read, &read_count, AVR_REG_SP);
+            add_write_reg_safe(regs_write, &write_count, AVR_REG_SP);
         }
         break;
         
     case AVR_INS_POP:
         // Pop: Rd = [SP], SP++
         if (avr->op_count >= 1) {
-            regs_read[read_count++] = AVR_REG_SP;
-            regs_write[write_count++] = avr->operands[0].reg;
-            regs_write[write_count++] = AVR_REG_SP;
+            add_read_reg_safe(regs_read, &read_count, AVR_REG_SP);
+            add_write_reg_safe(regs_write, &write_count, avr->operands[0].reg);
+            add_write_reg_safe(regs_write, &write_count, AVR_REG_SP);
         }
         break;
         
@@ -514,21 +534,23 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_ICALL:
     case AVR_INS_EICALL:
         // Call instructions modify stack pointer and PC
-        regs_read[read_count++] = AVR_REG_SP;
-        regs_write[write_count++] = AVR_REG_SP;
-        regs_write[write_count++] = AVR_REG_PC;
-        if (insn->id == AVR_INS_ICALL)
-            regs_read[read_count++] = AVR_REG_Z;
+        add_read_reg_safe(regs_read, &read_count, AVR_REG_SP);
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_SP);
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_PC);
+        if (insn->id == AVR_INS_ICALL) {
+            add_read_reg_safe(regs_read, &read_count, AVR_REG_Z);
+        }
         break;
         
     case AVR_INS_RET:
     case AVR_INS_RETI:
         // Return instructions modify stack pointer and PC
-        regs_read[read_count++] = AVR_REG_SP;
-        regs_write[write_count++] = AVR_REG_SP;
-        regs_write[write_count++] = AVR_REG_PC;
-        if (insn->id == AVR_INS_RETI)
-            regs_write[write_count++] = AVR_REG_SREG;
+        add_read_reg_safe(regs_read, &read_count, AVR_REG_SP);
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_SP);
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_PC);
+        if (insn->id == AVR_INS_RETI) {
+            add_write_reg_safe(regs_write, &write_count, AVR_REG_SREG);
+        }
         break;
         
     case AVR_INS_SEI:
@@ -548,7 +570,7 @@ void AVR_reg_access(const cs_insn *insn, cs_regs regs_read, uint8_t *regs_read_c
     case AVR_INS_SEH:
     case AVR_INS_CLH:
         // Flag operations modify SREG
-        regs_write[write_count++] = AVR_REG_SREG;
+        add_write_reg_safe(regs_write, &write_count, AVR_REG_SREG);
         break;
     }
     
