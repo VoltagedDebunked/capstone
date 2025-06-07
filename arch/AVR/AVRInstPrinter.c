@@ -70,7 +70,7 @@ static void printRegName(SStream *O, unsigned RegNo)
     if (name) {
         SStream_concat0(O, name);
     } else {
-        SStream_concat(O, "UNKNOWN_REG_%u", RegNo);
+        SStream_concat(O, "UNKNOWN_REG_%" PRIu32, RegNo);
     }
 }
 
