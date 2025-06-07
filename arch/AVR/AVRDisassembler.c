@@ -20,7 +20,7 @@
 #ifdef CAPSTONE_HAS_AVR
 
 // Register decoder helpers
-static unsigned __attribute__((unused)) DecodeGPR8RegisterClass(MCInst *Inst, unsigned RegNo,
+static unsigned DecodeGPR8RegisterClass(MCInst *Inst, unsigned RegNo,
                                        uint64_t Address, const void *Decoder)
 {
     if (RegNo > 31)
