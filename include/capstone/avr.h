@@ -14,7 +14,6 @@ extern "C" {
 
 #ifdef _MSC_VER
 #pragma warning(disable:4201)
-#pragma warning(disable:4214)
 #endif
 
 // AVR registers
