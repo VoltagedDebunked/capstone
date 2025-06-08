@@ -19,29 +19,6 @@
 
 #ifdef CAPSTONE_HAS_AVR
 
-// Register decoder helpers
-static unsigned __attribute__((unused))DecodeGPR8RegisterClass(MCInst *Inst, unsigned RegNo,
-                                       uint64_t Address, const void *Decoder)
-{
-    if (RegNo > 31)
-        return MCDisassembler_Fail;
-    
-    unsigned Register = AVR_REG_R0 + RegNo;
-    MCOperand_CreateReg0(Inst, Register);
-    return MCDisassembler_Success;
-}
-
-static unsigned __attribute__((unused)) DecodeGPR16RegisterClass(MCInst *Inst, unsigned RegNo,
-                                        uint64_t Address, const void *Decoder)
-{
-    if (RegNo > 15)
-        return MCDisassembler_Fail;
-    
-    unsigned Register = AVR_REG_R16 + RegNo;
-    MCOperand_CreateReg0(Inst, Register);
-    return MCDisassembler_Success;
-}
-
 static unsigned DecodePTRREGSRegisterClass(MCInst *Inst, unsigned RegNo,
                                           uint64_t Address, const void *Decoder)
 {
@@ -51,68 +28,6 @@ static unsigned DecodePTRREGSRegisterClass(MCInst *Inst, unsigned RegNo,
     case 2: MCOperand_CreateReg0(Inst, AVR_REG_Z); break;
     default: return MCDisassembler_Fail;
     }
-    return MCDisassembler_Success;
-}
-
-// Immediate decoder helpers
-static unsigned __attribute__((unused)) DecodeImm8(MCInst *Inst, unsigned Imm,
-                          uint64_t Address, const void *Decoder)
-{
-    MCOperand_CreateImm0(Inst, Imm);
-    return MCDisassembler_Success;
-}
-
-static unsigned __attribute__((unused)) DecodeImm16(MCInst *Inst, unsigned Imm,
-                           uint64_t Address, const void *Decoder)
-{
-    MCOperand_CreateImm0(Inst, Imm);
-    return MCDisassembler_Success;
-}
-
-static unsigned __attribute__((unused)) DecodeRelativeImm7(MCInst *Inst, unsigned Imm,
-                                  uint64_t Address, const void *Decoder)
-{
-    // Sign extend 7-bit immediate
-    if (Imm & 0x40)
-        Imm |= 0xFFFFFF80;
-    
-    MCOperand_CreateImm0(Inst, Imm);
-    return MCDisassembler_Success;
-}
-
-static unsigned __attribute__((unused)) DecodeRelativeImm12(MCInst *Inst, unsigned Imm,
-                                   uint64_t Address, const void *Decoder)
-{
-    // Sign extend 12-bit immediate
-    if (Imm & 0x800)
-        Imm |= 0xFFFFF000;
-    
-    MCOperand_CreateImm0(Inst, Imm);
-    return MCDisassembler_Success;
-}
-
-// Memory operand decoders
-static unsigned __attribute__((unused)) DecodeMemri(MCInst *Inst, unsigned Insn,
-                           uint64_t Address, const void *Decoder)
-{
-    unsigned Base = (Insn >> 5) & 0x3;
-    unsigned Offset = Insn & 0x1F;
-    
-    if (DecodePTRREGSRegisterClass(Inst, Base, Address, Decoder) == MCDisassembler_Fail)
-        return MCDisassembler_Fail;
-    
-    MCOperand_CreateImm0(Inst, Offset);
-    return MCDisassembler_Success;
-}
-
-// I/O register decoder
-static unsigned __attribute__((unused)) DecodeIORegister(MCInst *Inst, unsigned RegNo,
-                                uint64_t Address, const void *Decoder)
-{
-    if (RegNo >= AVR_REG_ENDING)
-        return MCDisassembler_Fail;
-    
-    MCOperand_CreateImm0(Inst, RegNo);
     return MCDisassembler_Success;
 }
 

@@ -298,17 +298,6 @@ static DecodeStatus DecodeRdK8(MCInst *MI, uint16_t insn, uint64_t addr, const v
     return MCDisassembler_Success;
 }
 
-static DecodeStatus __attribute__((unused)) DecodeRdK6(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
-{
-    unsigned Rd = (insn >> 4) & 0x1F;
-    unsigned K = ((insn >> 2) & 0x30) | (insn & 0x0F);
-    
-    MCOperand_CreateReg0(MI, AVR_REG_R0 + Rd);
-    MCOperand_CreateImm0(MI, K);
-    
-    return MCDisassembler_Success;
-}
-
 static DecodeStatus DecodeRd(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder)
 {
     unsigned Rd = (insn >> 4) & 0x1F;
