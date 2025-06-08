@@ -1,0 +1,4 @@
+# CS_ARCH_AVR, 0, None
+0x0f,0xef == ldi r16, 255
+0xff,0xef == ldi r31, 255
+0xbf,0xef == ldi r27, 255

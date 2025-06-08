@@ -1,0 +1,5 @@
+# CS_ARCH_AVR, 0, None
+0xe8,0x03 == fmulsu r22, r16
+0xb9,0x03 == fmulsu r19, r17
+0xdf,0x03 == fmulsu r21, r23
+0xff,0x03 == fmulsu r23, r23

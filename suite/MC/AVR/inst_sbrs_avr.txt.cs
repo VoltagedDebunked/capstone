@@ -1,0 +1,3 @@
+# CS_ARCH_AVR, 0, None
+0x23,0xfe == sbrs r2, 3
+0x07,0xfe == sbrs r0, 7

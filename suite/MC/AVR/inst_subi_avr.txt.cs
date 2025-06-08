@@ -1,0 +1,6 @@
+# CS_ARCH_AVR, 0, None
+0x62,0x55 == subi r22, 82
+0xb7,0x52 == subi r27, 39
+0xf4,0x5f == subi r31, 244
+0x00,0x59 == subi r16, 144
+0x40 == subi r20, EXTERN_SYMBOL+0
