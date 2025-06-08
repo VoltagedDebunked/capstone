@@ -19,18 +19,6 @@
 
 #ifdef CAPSTONE_HAS_AVR
 
-static unsigned DecodePTRREGSRegisterClass(MCInst *Inst, unsigned RegNo,
-                                          uint64_t Address, const void *Decoder)
-{
-    switch (RegNo) {
-    case 0: MCOperand_CreateReg0(Inst, AVR_REG_X); break;
-    case 1: MCOperand_CreateReg0(Inst, AVR_REG_Y); break;
-    case 2: MCOperand_CreateReg0(Inst, AVR_REG_Z); break;
-    default: return MCDisassembler_Fail;
-    }
-    return MCDisassembler_Success;
-}
-
 // Main disassembler function
 static DecodeStatus getInstruction(MCInst *MI, uint16_t *Size,
                                   const uint8_t *Bytes, size_t BytesLen,

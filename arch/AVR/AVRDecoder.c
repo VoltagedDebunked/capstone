@@ -46,7 +46,6 @@ typedef struct {
 // Forward declarations of decoder functions
 static DecodeStatus DecodeRdRr(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeRdK8(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
-static DecodeStatus DecodeRdK6(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeRd(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeBranch(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
 static DecodeStatus DecodeIOBit(MCInst *MI, uint16_t insn, uint64_t addr, const void *decoder);
